@@ -18,17 +18,120 @@ from typing import Optional, Dict, Any
 import time
 import subprocess
 import json
+import platform
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('transcriptor.log')
-    ]
-)
+# Configure logging for cross-platform compatibility
+def setup_logging():
+    """Setup logging with cross-platform compatibility"""
+    # Check if we're on Windows and configure accordingly
+    if platform.system() == 'Windows':
+        # Use a simple formatter without emojis for Windows
+        log_format = '%(asctime)s - %(levelname)s - %(message)s'
+        # Set console encoding to UTF-8 if possible
+        try:
+            import codecs
+            sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+            sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+        except:
+            pass
+    else:
+        # Use the original format for macOS/Linux
+        log_format = '%(asctime)s - %(levelname)s - %(message)s'
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format=log_format,
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('transcriptor.log', encoding='utf-8')
+        ]
+    )
+
+# Initialize logging
+setup_logging()
 logger = logging.getLogger(__name__)
+
+# Cross-platform emoji/icon handling
+class Icons:
+    """Cross-platform icons and emojis"""
+    def __init__(self):
+        self.is_windows = platform.system() == 'Windows'
+        
+    @property
+    def rocket(self):
+        return "Starting" if self.is_windows else "🚀"
+    
+    @property
+    def chart(self):
+        return "Analyzing" if self.is_windows else "📊"
+    
+    @property
+    def video(self):
+        return "Video Info" if self.is_windows else "📹"
+    
+    @property
+    def music(self):
+        return "Extracting audio" if self.is_windows else "🎵"
+    
+    @property
+    def check(self):
+        return "Success" if self.is_windows else "✅"
+    
+    @property
+    def microphone(self):
+        return "Transcribing" if self.is_windows else "🎤"
+    
+    @property
+    def save(self):
+        return "Saving" if self.is_windows else "💾"
+    
+    @property
+    def celebrate(self):
+        return "Completed" if self.is_windows else "🎉"
+    
+    @property
+    def clock(self):
+        return "Processing Stats" if self.is_windows else "⏱️"
+    
+    @property
+    def file(self):
+        return "Output file" if self.is_windows else "📄"
+    
+    @property
+    def sparkles(self):
+        return "Success" if self.is_windows else "✨"
+    
+    @property
+    def explosion(self):
+        return "Error" if self.is_windows else "💥"
+    
+    # Country flags for language optimization
+    def get_language_icon(self, language: str) -> str:
+        if self.is_windows:
+            lang_map = {
+                'es-cl': 'Chilean Spanish',
+                'en-us': 'American English',
+                'en-uk': 'British English',
+                'en-au': 'Australian English',
+                'multi': 'Multi-language',
+                'en': 'International English',
+                'es': 'International Spanish'
+            }
+            return lang_map.get(language, f'{language} optimization')
+        else:
+            lang_map = {
+                'es-cl': '🇨🇱 Chilean Spanish',
+                'en-us': '🇺🇸 American English',
+                'en-uk': '🇬🇧 British English',
+                'en-au': '🇦🇺 Australian English',
+                'multi': '🌐 Multi-language',
+                'en': '🌍 International English',
+                'es': '🌎 International Spanish'
+            }
+            return lang_map.get(language, f'🌐 {language}')
+
+# Global icons instance
+icons = Icons()
 
 # Robust import for moviepy
 try:
@@ -87,7 +190,7 @@ class ProcessingStats:
     
     def __str__(self) -> str:
         speed_factor = self.get_speed_factor()
-        return (f"⏱️  Processing Statistics:\n"
+        return (f"{icons.clock} Processing Statistics:\n"
                 f"   Audio extraction: {self.audio_extraction_time:.2f}s\n"
                 f"   Transcription: {self.transcription_time:.2f}s\n"
                 f"   Total time: {self.total_time:.2f}s\n"
@@ -122,7 +225,7 @@ class TranscriptorWhisper:
         "en-in": "English (India)",
     }
     
-    def __init__(self, model: str = "base", output_dir: str = "transcripciones"):
+    def __init__(self, model: str = "base", output_dir: str = "transcriptions"):
         """
         Initialize the transcriber with specified Whisper model
         
@@ -199,7 +302,7 @@ class TranscriptorWhisper:
             return {
                 "language": None, 
                 "initial_prompt": None,
-                "log_message": "🌍 Auto-detection mode - Best for multi-accent/multi-language videos"
+                "log_message": f"{icons.get_language_icon('en')} Auto-detection mode - Best for multi-accent/multi-language videos"
             }
         
         lang_lower = language.lower()
@@ -209,7 +312,7 @@ class TranscriptorWhisper:
             return {
                 "language": None,
                 "initial_prompt": self._get_multi_language_prompt(),
-                "log_message": "🌐 Multi-language/accent optimization activated"
+                "log_message": f"{icons.get_language_icon('multi')} optimization activated"
             }
         
         # English - general for multi-accent scenarios
@@ -217,7 +320,7 @@ class TranscriptorWhisper:
             return {
                 "language": "en",
                 "initial_prompt": self._get_international_english_prompt(),
-                "log_message": "🌍 International English optimization (handles multiple accents)"
+                "log_message": f"{icons.get_language_icon('en')} optimization (handles multiple accents)"
             }
         
         # Spanish - general for multi-dialect scenarios  
@@ -225,7 +328,7 @@ class TranscriptorWhisper:
             return {
                 "language": "es",
                 "initial_prompt": self._get_international_spanish_prompt(),
-                "log_message": "🌎 International Spanish optimization (handles multiple dialects)"
+                "log_message": f"{icons.get_language_icon('es')} optimization (handles multiple dialects)"
             }
         
         # Spanish variants
@@ -233,13 +336,13 @@ class TranscriptorWhisper:
             return {
                 "language": "es",
                 "initial_prompt": self.chilean_spanish_prompt,
-                "log_message": "🇨🇱 Chilean Spanish optimization activated"
+                "log_message": f"{icons.get_language_icon('es-cl')} optimization activated"
             }
         elif lang_lower.startswith("es-") or lang_lower.startswith("es_"):
             return {
                 "language": "es",
                 "initial_prompt": None,
-                "log_message": f"🌎 Spanish variant ({language}) activated"
+                "log_message": f"{icons.get_language_icon('es')} variant ({language}) activated"
             }
         
         # English variants
@@ -247,31 +350,31 @@ class TranscriptorWhisper:
             return {
                 "language": "en",
                 "initial_prompt": self.english_us_prompt,
-                "log_message": "🇺🇸 American English optimization activated"
+                "log_message": f"{icons.get_language_icon('en-us')} optimization activated"
             }
         elif lang_lower in ["en-uk", "en_uk", "british", "uk"]:
             return {
                 "language": "en",
                 "initial_prompt": self.english_uk_prompt,
-                "log_message": "🇬🇧 British English optimization activated"
+                "log_message": f"{icons.get_language_icon('en-uk')} optimization activated"
             }
         elif lang_lower in ["en-au", "en_au", "australian", "australia"]:
             return {
                 "language": "en",
                 "initial_prompt": self.english_general_prompt,
-                "log_message": "🇦🇺 Australian English optimization activated"
+                "log_message": f"{icons.get_language_icon('en-au')} optimization activated"
             }
         elif lang_lower in ["en-ca", "en_ca", "canadian", "canada"]:
             return {
                 "language": "en",
                 "initial_prompt": self.english_general_prompt,
-                "log_message": "🇨🇦 Canadian English optimization activated"
+                "log_message": "Canadian English optimization activated"
             }
         elif lang_lower.startswith("en-") or lang_lower.startswith("en_") or lang_lower == "en":
             return {
                 "language": "en",
                 "initial_prompt": self.english_general_prompt,
-                "log_message": f"🌍 English variant ({language}) activated"
+                "log_message": f"{icons.get_language_icon('en')} variant ({language}) activated"
             }
         
         # Other languages
@@ -279,7 +382,7 @@ class TranscriptorWhisper:
             return {
                 "language": language,
                 "initial_prompt": None,
-                "log_message": f"🌐 Language {language} activated"
+                "log_message": f"Language {language} activated"
             }
     
     def _get_multi_language_prompt(self) -> str:
@@ -553,7 +656,7 @@ class TranscriptorWhisper:
             with open(output_path, 'w', encoding='utf-8') as f:
                 # Write header with complete metadata
                 f.write(f"=== TRANSCRIPTION OF: {filename} ===\n\n")
-                f.write(f"📹 Video Information:\n")
+                f.write(f"{icons.video} Video Information:\n")
                 f.write(f"   File: {video_info.path.name}\n")
                 f.write(f"   Size: {video_info.size_mb:.2f} MB\n")
                 f.write(f"   Duration: {VideoInfo._format_duration(video_info.duration_seconds)}\n")
@@ -561,7 +664,7 @@ class TranscriptorWhisper:
                 f.write(f"   Resolution: {video_info.resolution}\n")
                 f.write(f"   FPS: {video_info.fps:.2f}\n\n")
                 
-                f.write(f"🧠 Processing Information:\n")
+                f.write(f"Processing Information:\n")
                 f.write(f"   Model used: {self.model_name}\n")
                 f.write(f"   Detected language: {result.get('language', 'Unknown')}\n")
                 f.write(f"   Audio extraction time: {stats.audio_extraction_time:.2f}s\n")
@@ -626,29 +729,29 @@ class TranscriptorWhisper:
         # Initialize processing statistics
         stats = ProcessingStats()
         
-        logger.info(f"🚀 Starting transcription of: {video_path.name}")
+        logger.info(f"{icons.rocket} Starting transcription of: {video_path.name}")
         
         try:
             # Step 0: Get video information
-            logger.info("📊 Analyzing video file...")
+            logger.info(f"{icons.chart} Analyzing video file...")
             video_info = self.get_video_info(video_path)
             stats.video_duration = video_info.duration_seconds
             
             # Display video information
-            logger.info("📹 Video Information:")
+            logger.info(f"{icons.video} Video Information:")
             for line in str(video_info).split('\n'):
                 logger.info(f"   {line}")
             
             # Step 1: Extract audio
-            logger.info("🎵 Extracting audio...")
+            logger.info(f"{icons.music} Extracting audio...")
             audio_path = self.extract_audio(video_path, stats)
             if not audio_path:
                 return False
             
-            logger.info(f"✅ Audio extraction completed in {stats.audio_extraction_time:.2f}s")
+            logger.info(f"{icons.check} Audio extraction completed in {stats.audio_extraction_time:.2f}s")
             
             # Step 2: Transcribe
-            logger.info("🎤 Starting transcription...")
+            logger.info(f"{icons.microphone} Starting transcription...")
             result = self.transcribe_audio(audio_path, language, stats)
             if not result:
                 return False
@@ -656,7 +759,7 @@ class TranscriptorWhisper:
             # Step 3: Save transcription
             stats.finish()  # Calculate total time
             
-            logger.info("💾 Saving transcription...")
+            logger.info(f"{icons.save} Saving transcription...")
             output_path = self.save_transcription(result, filename, include_timestamps, video_info, stats)
             if not output_path:
                 return False
@@ -665,9 +768,9 @@ class TranscriptorWhisper:
             self.cleanup_temp_files()
             
             # Display final statistics
-            logger.info("🎉 Transcription completed successfully!")
+            logger.info(f"{icons.celebrate} Transcription completed successfully!")
             logger.info(str(stats))
-            logger.info(f"📄 Output file: {output_path}")
+            logger.info(f"{icons.file} Output file: {output_path}")
             
             return True
             
@@ -729,8 +832,8 @@ Examples:
     
     parser.add_argument(
         "-o", "--output",
-        default="transcripciones",
-        help="Output directory for transcriptions (default: transcripciones)"
+        default="transcriptions",
+        help="Output directory for transcriptions (default: transcriptions)"
     )
     
     parser.add_argument(
@@ -757,10 +860,10 @@ Examples:
         )
         
         if success:
-            logger.info("✨ Transcription completed successfully")
+            logger.info(f"{icons.sparkles} Transcription completed successfully")
             return 0
         else:
-            logger.error("💥 Transcription failed")
+            logger.error(f"{icons.explosion} Transcription failed")
             return 1
             
     except KeyboardInterrupt:

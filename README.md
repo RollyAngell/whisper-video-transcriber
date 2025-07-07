@@ -2,6 +2,8 @@
 
 A complete command-line application to transcribe videos to text using OpenAI's Whisper running locally, optimized for Chilean Spanish, English variants, and international multi-accent scenarios.
 
+**✅ CROSS-PLATFORM COMPATIBLE** - Works perfectly on Windows and Mac operating systems.
+
 ## ✨ Features
 
 - 🎤 **Local transcription**: No internet needed, completely private
@@ -15,6 +17,7 @@ A complete command-line application to transcribe videos to text using OpenAI's 
 - 🖥️ **Command-line interface**: Powerful and efficient CLI tool
 - 📁 **Multiple formats**: MP4, AVI, MOV, MKV, WMV, FLV, WebM
 - 🔧 **Robust error handling**: Automatic fallback methods and cleanup
+- 💻 **Cross-platform**: Works on Windows, macOS, and Linux
 
 ## 🚀 Installation
 
@@ -22,27 +25,62 @@ A complete command-line application to transcribe videos to text using OpenAI's 
 
 You need to have **ffmpeg** installed on your system:
 
+#### **Windows** (Choose one method):
+
+**Method A: Manual Download (Recommended)**
 ```bash
-# macOS
+# 1. Download from: https://www.gyan.dev/ffmpeg/builds/
+# 2. Extract to C:\ffmpeg\
+# 3. Add C:\ffmpeg\bin to your PATH
+# 4. Test with: ffmpeg -version
+```
+
+**Method B: Using winget (Windows 10/11)**
+```bash
+winget install ffmpeg
+```
+
+**Method C: Using Scoop**
+```bash
+# Install Scoop first:
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh | iex
+
+# Then install ffmpeg:
+scoop install ffmpeg
+```
+
+#### **macOS**:
+```bash
 brew install ffmpeg
+```
 
-# Ubuntu/Debian
+#### **Linux (Ubuntu/Debian)**:
+```bash
 sudo apt install ffmpeg
-
-# Windows
-# Download from: https://ffmpeg.org/download.html
 ```
 
 ### 2. Create virtual environment (recommended)
 
+#### **Windows (PowerShell)**:
 ```bash
 # Create virtual environment
 python -m venv whisper_env
 
 # Activate virtual environment
-source whisper_env/bin/activate  # macOS/Linux
-# or
-whisper_env\Scripts\activate     # Windows
+whisper_env\Scripts\activate
+
+# Update pip
+python -m pip install --upgrade pip
+```
+
+#### **macOS/Linux**:
+```bash
+# Create virtual environment
+python -m venv whisper_env
+
+# Activate virtual environment
+source whisper_env/bin/activate
 
 # Update pip
 pip install --upgrade pip
@@ -88,6 +126,19 @@ python transcriptor_whisper.py my_video.mp4 -t
 
 # Complete example with Chilean Spanish
 python transcriptor_whisper.py my_video.mp4 -m medium -l es-cl -t -v
+```
+
+### 🪟 Windows-Specific Examples
+
+```bash
+# Basic usage in Windows
+python transcriptor_whisper.py "C:\Users\Username\Desktop\video.mp4"
+
+# With quotes for spaces in path
+python transcriptor_whisper.py ".\2025-01-08 15-30-06 - Meeting.mp4" -l en-us -m medium
+
+# Chilean Spanish with timestamps
+python transcriptor_whisper.py "my_video.mp4" -l es-cl -t -v
 ```
 
 ## 🧠 Available Models
@@ -138,6 +189,55 @@ python transcriptor_whisper.py my_video.mp4 -m medium -l es-cl -t -v
 - `multi` - **Multi-language/accent optimization**
 - `en` - **International English** (handles multiple accents)
 - `es` - **International Spanish** (handles multiple dialects)
+
+## 🔧 Troubleshooting
+
+### Windows Issues
+
+**Error: "ffmpeg not found"**
+```bash
+# Verify ffmpeg is installed:
+ffmpeg -version
+
+# If not working, add to PATH or reinstall ffmpeg
+```
+
+**Error: "No module named 'whisper'"**
+```bash
+# Make sure virtual environment is activated:
+whisper_env\Scripts\activate
+
+# Reinstall dependencies:
+pip install -r requirements.txt
+```
+
+**Permission errors**
+```bash
+# Run PowerShell as Administrator
+# Or use --user flag:
+pip install --user -r requirements.txt
+```
+
+**Unicode/Character encoding errors**
+```bash
+# The application now automatically handles Windows encoding
+# If you still see issues, try:
+chcp 65001  # Set console to UTF-8
+```
+
+### macOS/Linux Issues
+
+**MoviePy not available**
+```bash
+# This is normal, the app will use ffmpeg instead
+# No action needed
+```
+
+**Permission denied**
+```bash
+# Make sure you have write permissions in the directory
+chmod +x transcriptor_whisper.py
+```
 
 ## 🌐 Multi-Accent & International Content
 
@@ -250,3 +350,104 @@ The application provides detailed performance analysis:
 ### Example Output
 
 ```
+Starting transcription of: my_video.mp4
+Analyzing video file...
+Video Info Video Information:
+   File: my_video.mp4
+   Size: 156.78 MB (164,435,792 bytes)
+   Duration: 00:15:23
+   Format: .mp4
+   Resolution: 1920x1080
+   FPS: 30.00
+
+Extracting audio audio...
+Success Audio extraction completed in 3.45s
+Transcribing Starting transcription...
+American English optimization activated
+Transcription completed in 89.23s
+Saving Saving transcription...
+Completed Transcription completed successfully!
+Processing Stats Processing Statistics:
+   Audio extraction: 3.45s
+   Transcription: 89.23s
+   Total time: 92.68s
+   Speed factor: 9.95x faster than real-time
+Output file Output file: transcriptions/my_video.txt
+```
+
+## 📁 File Structure
+
+After installation and first use:
+
+```
+whisper-video-transcriber/
+├── README.md
+├── requirements.txt
+├── transcriptor_whisper.py
+├── whisper_env/              # Virtual environment
+├── transcriptions/           # Generated transcriptions
+├── temp/                     # Temporary files
+└── transcriptor.log          # Log file
+```
+
+## 🎯 Quick Start Examples
+
+### For Chilean Spanish Content
+```bash
+# Basic Chilean Spanish
+python transcriptor_whisper.py video.mp4 -l es-cl
+
+# High quality with timestamps
+python transcriptor_whisper.py video.mp4 -m medium -l es-cl -t
+```
+
+### For International English Content
+```bash
+# Auto-detection (best for mixed accents)
+python transcriptor_whisper.py video.mp4 -m medium
+
+# Specific American English
+python transcriptor_whisper.py video.mp4 -l en-us -m medium
+```
+
+### For Multi-Language Content
+```bash
+# Best for international conferences
+python transcriptor_whisper.py video.mp4 -l multi -m large -t
+```
+
+## 🔍 Advanced Usage
+
+### Batch Processing
+```bash
+# Process multiple files
+for file in *.mp4; do
+    python transcriptor_whisper.py "$file" -l es-cl -m medium
+done
+```
+
+### Custom Output Directory
+```bash
+python transcriptor_whisper.py video.mp4 -o custom_output_folder
+```
+
+### Debug Mode
+```bash
+python transcriptor_whisper.py video.mp4 -v
+```
+
+## 🤝 Contributing
+
+Feel free to contribute to this project by:
+- Reporting bugs
+- Suggesting new features
+- Submitting pull requests
+- Improving documentation
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+---
+
+**Made with ❤️ for the global community - Works perfectly on Windows and Mac!**
