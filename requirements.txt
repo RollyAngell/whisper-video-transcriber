@@ -1,0 +1,22 @@
+# Video Transcriptor with Local Whisper
+# Required dependencies
+
+# OpenAI Whisper
+openai-whisper>=20231117
+
+# Video/Audio processing dependencies
+imageio-ffmpeg>=0.2.0
+moviepy>=1.0.3
+
+# Additional utilities
+tqdm>=4.66.0
+pathlib2>=2.3.7
+
+# System dependencies (install with pip)
+# ffmpeg-python>=0.2.0  # Optional: for more control over ffmpeg
+
+# Notes:
+# - ffmpeg must be installed on the system
+# - On macOS: brew install ffmpeg
+# - On Ubuntu/Debian: sudo apt install ffmpeg
+# - On Windows: download from https://ffmpeg.org/download.html 
