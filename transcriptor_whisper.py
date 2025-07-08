@@ -38,14 +38,14 @@ def setup_logging():
         # Use the original format for macOS/Linux
         log_format = '%(asctime)s - %(levelname)s - %(message)s'
     
-    logging.basicConfig(
-        level=logging.INFO,
+logging.basicConfig(
+    level=logging.INFO,
         format=log_format,
-        handlers=[
-            logging.StreamHandler(sys.stdout),
+    handlers=[
+        logging.StreamHandler(sys.stdout),
             logging.FileHandler('transcriptor.log', encoding='utf-8')
-        ]
-    )
+    ]
+)
 
 # Initialize logging
 setup_logging()
