@@ -1,22 +1,31 @@
-# Video Transcriptor with Local Whisper
-# Required dependencies
-
-# OpenAI Whisper
+# Core dependencies for video transcription
 openai-whisper>=20231117
 
-# Video/Audio processing dependencies
-imageio-ffmpeg>=0.2.0
+# PyTorch (required by whisper) - CPU version for compatibility
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Audio/video processing
 moviepy>=1.0.3
+imageio-ffmpeg>=0.4.7
+
+# AI and ML dependencies
+transformers>=4.21.0
+numpy>=1.21.0
+
+# OpenAI API for ChatGPT summarization
+openai>=1.0.0
+
+# System dependencies (install with pip)
+ffmpeg-python>=0.2.0
 
 # Additional utilities
 tqdm>=4.66.0
-pathlib2>=2.3.7
-
-# System dependencies (install with pip)
-# ffmpeg-python>=0.2.0  # Optional: for more control over ffmpeg
+requests>=2.28.0
 
 # Notes:
 # - ffmpeg must be installed on the system
 # - On macOS: brew install ffmpeg
 # - On Ubuntu/Debian: sudo apt install ffmpeg
 # - On Windows: download from https://ffmpeg.org/download.html 
+# - OpenAI API key required for ChatGPT summarization 
