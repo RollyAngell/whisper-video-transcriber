@@ -575,7 +575,7 @@ class ProcessingStats:
 class OpenAISummarizer:
     """ChatGPT-powered generative summarizer"""
     
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o-mini"):
         """
         Initialize OpenAI summarizer
         
@@ -604,113 +604,209 @@ class OpenAISummarizer:
         """Check if OpenAI summarization is available"""
         return self.client is not None and self.openai is not None
     
-    def _create_spanish_prompt(self, text: str, max_points: int = 7) -> str:
-        """Create Spanish prompt for ChatGPT"""
-        return f"""Eres un asistente experto en resumir contenido transcrito. Crea un resumen profesional y estructurado del siguiente texto en español, incluyendo también una traducción completa al inglés.
+    def _create_spanish_prompt(self, text: str, max_points: int = 10) -> str:
+        """Create Spanish prompt for ChatGPT with meeting-specific structure"""
+        return f"""Eres un asistente experto en resumir reuniones de trabajo y conversaciones técnicas. Crea un resumen profesional y estructurado del siguiente texto, incluyendo también una traducción completa al inglés.
 
 INSTRUCCIONES:
-- Genera un título descriptivo y atractivo que capture la esencia del contenido
-- Extrae máximo {max_points} puntos clave más importantes
-- Identifica temas principales con su frecuencia/importancia
-- Usa un lenguaje claro y profesional en español
-- Mantén la coherencia y el flujo narrativo
-- Si el contenido es técnico, preserva términos importantes
-- Crea oraciones nuevas (no copies textualmente)
+- Analiza el contenido como una reunión de trabajo técnica
+- Estructura el resumen en los apartados específicos solicitados
+- Usa un lenguaje claro y profesional
+- Incluye todos los detalles técnicos importantes
+- Mantén la coherencia y el contexto
 - Proporciona una traducción completa y precisa al inglés
 
 FORMATO REQUERIDO:
 === RESUMEN AUTOMÁTICO ===
 
-🎯 TÍTULO: [Título descriptivo y atractivo basado en el contenido principal]
+🎯 TÍTULO: [Título descriptivo y atractivo que capture la esencia de la reunión]
 
-📋 TEMAS PRINCIPALES:
-• [tema importante] ([relevancia: alta/media])
-• [otro tema] ([relevancia: alta/media])
-• [máximo 8 temas]
+1. **CONTEXTO GENERAL**
+   ¿De qué trata la conversación y por qué se llevó a cabo?
+   - [Detalla el propósito, participantes y contexto de la reunión]
 
-📝 RESUMEN DEL CONTENIDO:
-1. [Punto clave uno - reformulado de manera clara]
-2. [Punto clave dos - con contexto relevante]
-3. [Continúa hasta máximo {max_points} puntos]
+2. **FUNCIONAMIENTO ACTUAL DEL SISTEMA O PROCESO**
+   Describe los reportes que se reciben, qué información contienen, cómo se usa, qué lógica aplican:
+   - [Explicación detallada del sistema actual]
+   - [Tipos de reportes y su contenido]
+   - [Lógica de procesamiento]
+
+3. **PROBLEMAS O DESAFÍOS ENFRENTADOS**
+   Detalla los casos especiales, inconsistencias detectadas y cómo se están resolviendo:
+   - [Lista de problemas identificados]
+   - [Inconsistencias encontradas]
+   - [Soluciones propuestas o implementadas]
+
+4. **SITUACIÓN ACTUAL DEL OTRO EQUIPO**
+   Qué limitaciones tienen, qué archivos usan, qué les falta:
+   - [Limitaciones del equipo]
+   - [Archivos/recursos que utilizan]
+   - [Carencias identificadas]
+
+5. **NECESIDADES IDENTIFICADAS**
+   Qué mejoras o información necesitan obtener:
+   - [Lista de necesidades específicas]
+   - [Mejoras requeridas]
+   - [Información faltante]
+
+6. **ACUERDOS Y PRÓXIMOS PASOS**
+   Qué compromisos se tomaron, qué se acordó revisar, compartir o implementar:
+   - [Compromisos específicos]
+   - [Tareas asignadas]
+   - [Fechas límite (si se mencionaron)]
+   - [Próximas reuniones o revisiones]
 
 📊 ESTADÍSTICAS DEL RESUMEN:
    • Texto original: {len(text)} caracteres
-   • Resumen: [calcular] caracteres
-   • Compresión: [calcular]% del texto original
-   • Puntos clave: [número de puntos]
+   • Apartados analizados: 6
+   • Nivel de detalle: Alto
+   • Enfoque: Reunión técnica/trabajo
 
 === ENGLISH TRANSLATION ===
 
-🎯 TITLE: [Descriptive and engaging title based on main content - English translation]
+🎯 TITLE: [Descriptive and engaging title that captures the essence of the meeting]
 
-📋 MAIN TOPICS:
-• [important topic] ([relevance: high/medium])
-• [another topic] ([relevance: high/medium])
-• [maximum 8 topics]
+1. **OVERALL CONTEXT**
+   What is the conversation about and why was it held?
+   - [Detail the purpose, participants, and context of the meeting]
 
-📝 CONTENT SUMMARY:
-1. [Key point one - clearly reformulated]
-2. [Key point two - with relevant context]
-3. [Continue up to maximum {max_points} points]
+2. **CURRENT SYSTEM OR PROCESS OPERATION**
+   Describe the reports received, what information they contain, how they are used, what logic they apply:
+   - [Detailed explanation of the current system]
+   - [Types of reports and their content]
+   - [Processing logic]
+
+3. **PROBLEMS OR CHALLENGES FACED**
+   Detail the edge cases, inconsistencies detected, and how they are being solved:
+   - [List of identified problems]
+   - [Inconsistencies found]
+   - [Proposed or implemented solutions]
+
+4. **CURRENT SITUATION OF THE OTHER TEAM**
+   What limitations they have, what files they use, what they are missing:
+   - [Team limitations]
+   - [Files/resources they use]
+   - [Identified gaps]
+
+5. **IDENTIFIED NEEDS**
+   What improvements or information they need to obtain:
+   - [List of specific needs]
+   - [Required improvements]
+   - [Missing information]
+
+6. **AGREEMENTS AND NEXT STEPS**
+   What commitments were made, what was agreed to review, share, or implement:
+   - [Specific commitments]
+   - [Assigned tasks]
+   - [Deadlines (if mentioned)]
+   - [Next meetings or reviews]
 
 TEXTO A RESUMIR:
 {text}
 
-Responde ÚNICAMENTE con el resumen en el formato especificado."""
+Responde ÚNICAMENTE con el resumen en el formato especificado. Usa viñetas, subtítulos y párrafos cortos para facilitar la lectura."""
 
-    def _create_english_prompt(self, text: str, max_points: int = 7) -> str:
-        """Create English prompt for ChatGPT"""
-        return f"""You are an expert assistant specialized in summarizing transcribed content. Create a professional and structured summary of the following English text, including also a complete translation to Spanish.
+    def _create_english_prompt(self, text: str, max_points: int = 10) -> str:
+        """Create English prompt for ChatGPT with meeting-specific structure"""
+        return f"""You are an expert assistant specialized in summarizing work meetings and technical conversations. Create a professional and structured summary of the following text, including also a complete translation to Spanish.
 
 INSTRUCTIONS:
-- Generate a descriptive and engaging title that captures the essence of the content
-- Extract maximum {max_points} most important key points
-- Identify main topics with their frequency/importance
-- Use clear and professional English
-- Maintain coherence and narrative flow
-- If content is technical, preserve important terminology
-- Create new sentences (don't copy verbatim)
+- Analyze the content as a technical work meeting
+- Structure the summary in the specific sections requested
+- Use clear and professional language
+- Include all important technical details
+- Maintain coherence and context
 - Provide a complete and accurate translation to Spanish
 
 REQUIRED FORMAT:
 === AUTOMATIC SUMMARY ===
 
-🎯 TITLE: [Descriptive and engaging title based on the main content]
+🎯 TITLE: [Descriptive and engaging title that captures the essence of the meeting]
 
-📋 MAIN TOPICS:
-• [important topic] ([relevance: high/medium])
-• [another topic] ([relevance: high/medium])
-• [maximum 8 topics]
+1. **OVERALL CONTEXT**
+   What is the conversation about and why was it held?
+   - [Detail the purpose, participants, and context of the meeting]
 
-📝 CONTENT SUMMARY:
-1. [Key point one - reformulated clearly]
-2. [Key point two - with relevant context]
-3. [Continue up to maximum {max_points} points]
+2. **CURRENT SYSTEM OR PROCESS OPERATION**
+   Describe the reports received, what information they contain, how they are used, what logic they apply:
+   - [Detailed explanation of the current system]
+   - [Types of reports and their content]
+   - [Processing logic]
+
+3. **PROBLEMS OR CHALLENGES FACED**
+   Detail the edge cases, inconsistencies detected, and how they are being solved:
+   - [List of identified problems]
+   - [Inconsistencies found]
+   - [Proposed or implemented solutions]
+
+4. **CURRENT SITUATION OF THE OTHER TEAM**
+   What limitations they have, what files they use, what they are missing:
+   - [Team limitations]
+   - [Files/resources they use]
+   - [Identified gaps]
+
+5. **IDENTIFIED NEEDS**
+   What improvements or information they need to obtain:
+   - [List of specific needs]
+   - [Required improvements]
+   - [Missing information]
+
+6. **AGREEMENTS AND NEXT STEPS**
+   What commitments were made, what was agreed to review, share, or implement:
+   - [Specific commitments]
+   - [Assigned tasks]
+   - [Deadlines (if mentioned)]
+   - [Next meetings or reviews]
 
 📊 SUMMARY STATISTICS:
    • Original text: {len(text)} characters
-   • Summary: [calculate] characters
-   • Compression: [calculate]% of original
-   • Key points: [number of points]
+   • Sections analyzed: 6
+   • Detail level: High
+   • Focus: Technical meeting/work
 
 === TRADUCCIÓN AL ESPAÑOL ===
 
-🎯 TÍTULO: [Título descriptivo y atractivo basado en el contenido principal - traducción al español]
+🎯 TÍTULO: [Título descriptivo y atractivo que capture la esencia de la reunión]
 
-📋 TEMAS PRINCIPALES:
-• [tema importante] ([relevancia: alta/media])
-• [otro tema] ([relevancia: alta/media])
-• [máximo 8 temas]
+1. **CONTEXTO GENERAL**
+   ¿De qué trata la conversación y por qué se llevó a cabo?
+   - [Detalla el propósito, participantes y contexto de la reunión]
 
-📝 RESUMEN DEL CONTENIDO:
-1. [Punto clave uno - reformulado de manera clara]
-2. [Punto clave dos - con contexto relevante]
-3. [Continúa hasta máximo {max_points} puntos]
+2. **FUNCIONAMIENTO ACTUAL DEL SISTEMA O PROCESO**
+   Describe los reportes que se reciben, qué información contienen, cómo se usa, qué lógica aplican:
+   - [Explicación detallada del sistema actual]
+   - [Tipos de reportes y su contenido]
+   - [Lógica de procesamiento]
+
+3. **PROBLEMAS O DESAFÍOS ENFRENTADOS**
+   Detalla los casos especiales, inconsistencias detectadas y cómo se están resolviendo:
+   - [Lista de problemas identificados]
+   - [Inconsistencias encontradas]
+   - [Soluciones propuestas o implementadas]
+
+4. **SITUACIÓN ACTUAL DEL OTRO EQUIPO**
+   Qué limitaciones tienen, qué archivos usan, qué les falta:
+   - [Limitaciones del equipo]
+   - [Archivos/recursos que utilizan]
+   - [Carencias identificadas]
+
+5. **NECESIDADES IDENTIFICADAS**
+   Qué mejoras o información necesitan obtener:
+   - [Lista de necesidades específicas]
+   - [Mejoras requeridas]
+   - [Información faltante]
+
+6. **ACUERDOS Y PRÓXIMOS PASOS**
+   Qué compromisos se tomaron, qué se acordó revisar, compartir o implementar:
+   - [Compromisos específicos]
+   - [Tareas asignadas]
+   - [Fechas límite (si se mencionaron)]
+   - [Próximas reuniones o revisiones]
 
 TEXT TO SUMMARIZE:
 {text}
 
-Respond ONLY with the summary in the specified format."""
+Respond ONLY with the summary in the specified format. Use bullet points, subtitles, and short paragraphs for easy reading."""
 
     def _determine_max_points(self, text_length: int) -> int:
         """Determine optimal number of summary points based on content length"""
@@ -768,7 +864,7 @@ Respond ONLY with the summary in the specified format."""
                     },
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1500,  # Limit response length
+                max_tokens=10000,  # Increased for more detailed summaries
                 temperature=0.3,  # Lower temperature for more consistent results
                 top_p=0.9
             )
@@ -1455,7 +1551,7 @@ class TranscriptorWhisper:
     def save_transcription(self, result: Dict[str, Any], filename: str, include_timestamps: bool, 
                           video_info: VideoInfo, stats: ProcessingStats, include_summary: bool = True,
                           openai_api_key: Optional[str] = None, 
-                          openai_model: str = "gpt-4o") -> Optional[Path]:
+                          openai_model: str = "gpt-4o-mini") -> Optional[Path]:
         """
         Save transcription to file with metadata and automatic summary
         
@@ -1566,7 +1662,7 @@ class TranscriptorWhisper:
     
     def transcribe_video(self, video_path: str, language: Optional[str] = None, include_timestamps: bool = False, 
                         include_summary: bool = True, 
-                        openai_api_key: Optional[str] = None, openai_model: str = "gpt-4o") -> bool:
+                        openai_api_key: Optional[str] = None, openai_model: str = "gpt-4o-mini") -> bool:
         """
         Complete video transcription process with detailed metrics and progress tracking
         
@@ -1744,9 +1840,9 @@ Examples:
     
     parser.add_argument(
         "--openai-model",
-        default="gpt-4o",
+        default="gpt-4o-mini",
         choices=["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-preview", "gpt-4o", "gpt-4o-mini"],
-        help="OpenAI model to use for summarization (default: gpt-4o)"
+        help="OpenAI model to use for summarization (default: gpt-4o-mini)"
     )
     
     parser.add_argument(

@@ -68,3 +68,9 @@ Desktop.ini
 
 # Model cache
 ~/.cache/whisper/
+
+# Google Drive API credentials (sensitive)
+credentials.json
+token.json
+
+transcriptor_progress.json

@@ -23,9 +23,15 @@ ffmpeg-python>=0.2.0
 tqdm>=4.66.0
 requests>=2.28.0
 
+# Google Drive API
+google-api-python-client>=2.0.0
+google-auth-httplib2>=0.1.0
+google-auth-oauthlib>=0.5.0
+
 # Notes:
 # - ffmpeg must be installed on the system
 # - On macOS: brew install ffmpeg
 # - On Ubuntu/Debian: sudo apt install ffmpeg
 # - On Windows: download from https://ffmpeg.org/download.html 
-# - OpenAI API key required for ChatGPT summarization 
+# - OpenAI API key required for ChatGPT summarization
+# - Google Drive API credentials required for upload functionality 
