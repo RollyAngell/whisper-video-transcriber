@@ -45,6 +45,7 @@ temp/
 
 # Transcriptions (optional - comment out if you want to include them)
 transcripciones/
+transcriptions/
 
 # macOS
 .DS_Store

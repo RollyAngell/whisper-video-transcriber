@@ -33,13 +33,39 @@ brew install ffmpeg
 sudo apt update && sudo apt install ffmpeg
 ```
 
-### 2. Install Python dependencies
+### 2. Create Virtual Environment
+
+**macOS/Linux:**
+```bash
+# Create virtual environment
+python3 -m venv whisper_env
+
+# Activate virtual environment
+source whisper_env/bin/activate
+
+# Upgrade pip
+pip install --upgrade pip
+```
+
+**Windows:**
+```bash
+# Create virtual environment
+python -m venv whisper_env
+
+# Activate virtual environment
+whisper_env\Scripts\activate
+
+# Upgrade pip
+pip install --upgrade pip
+```
+
+### 3. Install Python dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure OpenAI API Key
+### 4. Configure OpenAI API Key
 
 ```bash
 # Linux/Mac
@@ -245,7 +271,9 @@ MP4, AVI, MOV, MKV, WMV, FLV, WebM
 ## 🎉 Ready to Start!
 
 1. **Install ffmpeg** (see installation section)
-2. **Get OpenAI API key** (https://platform.openai.com/api-keys)
-3. **Install dependencies**: `pip install -r requirements.txt`
-4. **Configure API key**: `export OPENAI_API_KEY=sk-your-key`
-5. **Run**: `python transcriptor_whisper.py your-video.mp4`
+2. **Create virtual environment**: `python3 -m venv whisper_env` (Mac/Linux) or `python -m venv whisper_env` (Windows)
+3. **Activate environment**: `source whisper_env/bin/activate` (Mac/Linux) or `whisper_env\Scripts\activate` (Windows)
+4. **Get OpenAI API key** (https://platform.openai.com/api-keys)
+5. **Install dependencies**: `pip install -r requirements.txt`
+6. **Configure API key**: `export OPENAI_API_KEY=sk-your-key`
+7. **Run**: `python transcriptor_whisper.py your-video.mp4`
